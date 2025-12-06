@@ -15,6 +15,12 @@
 #define OLED_UNFILLED			0
 #define OLED_FILLED				1
 
+// OLED相关引脚定义
+#define OLED_SCL_PORT    GPIOB
+#define OLED_SCL_PIN     GPIO_Pin_6
+#define OLED_SDA_PORT    GPIOB
+#define OLED_SDA_PIN     GPIO_Pin_7
+
 /*********************参数宏定义*/
 
 
