@@ -15,12 +15,14 @@
 
 uint16_t Value_ADC_Mode[] = {0, 0, 0};
 uint16_t Value_Store_Mode[] = {4, 5, 6};
-uint16_t Value_IMU_Mode[] = {7, 8, 9};
+float Value_IMU_Mode[] = {7, 8, 9};
 uint8_t ADC_READ_ENABLE = 0;
 
 // 临时字节缓冲区：uint16_t ↔ uint8_t 转换（3个uint16_t=6字节）
 uint8_t Byte_Buf_Write[6];
 uint8_t Byte_Buf_Read[6];
+
+int16_t Heartbeat_TimeTick = 200;
 
 int main(void)
 {
@@ -49,12 +51,36 @@ int main(void)
 	OLED_Printf(8, 16, OLED_8X16, Main_Menu[1]);
 	OLED_Printf(8, 32, OLED_8X16, Main_Menu[2]);
 	OLED_Printf(0, 16 * (Main_Menu_Location - 1) , OLED_8X16, ">");	
-//	OLED_Printf(112, 0, OLED_8X16, "+");
 	OLED_Update();	
 /* =================== [END] 菜单初始化模块 [END] =================== */	
 	
 	while (1)
 	{	
+		if (Serial_RxFlag == 1)
+        {
+            // 判断是否是@H\r\n（解析后为"H"）
+            if (strcmp(Serial_RxPacket, "H") == 0)
+            {
+				Heartbeat_TimeTick = 200;
+            }
+			else if (strstr(Serial_RxPacket, "D,") != NULL)
+			{
+				char *token = strtok(Serial_RxPacket, ","); // 按逗号分割
+				if (token != NULL && strcmp(token, "D") == 0)
+				{
+					// 提取Pitch
+					token = strtok(NULL, ",");
+					if (token != NULL) Value_IMU_Mode[0] = atof(token);
+					// 提取Roll
+					token = strtok(NULL, ",");
+					if (token != NULL) Value_IMU_Mode[1] = atof(token);
+					// 提取Yaw
+					token = strtok(NULL, ",");
+					if (token != NULL) Value_IMU_Mode[2] = atof(token);
+			}
+		}	
+            Serial_RxFlag = 0; // 清空标志位
+        }
 		
 		/* =================== [START] 按键响应及菜单更新模块 [START] =================== */	
 		// 上键单击：菜单上移
@@ -121,9 +147,9 @@ int main(void)
 					
 					case Flag_IMU_Mode:
 						OLED_Clear();
-						OLED_Printf(8, 16, OLED_8X16, "Pitch:%d",Value_IMU_Mode[0]);
-						OLED_Printf(8, 32, OLED_8X16, "Roll:%d",Value_IMU_Mode[1]);
-						OLED_Printf(8, 48, OLED_8X16, "Yaw:%d",Value_IMU_Mode[2]);
+						OLED_Printf(8, 16, OLED_8X16, "Pitch:%.4f   ",Value_IMU_Mode[0]);
+						OLED_Printf(8, 32, OLED_8X16, "Roll:%.4f   ",Value_IMU_Mode[1]);
+						OLED_Printf(8, 48, OLED_8X16, "Yaw:%.4f   ",Value_IMU_Mode[2]);
 						OLED_Update();					
 					
 						break;		
@@ -200,7 +226,11 @@ int main(void)
 				break;
 			
 			case Flag_IMU_Mode:
-			
+				OLED_Printf(8, 16, OLED_8X16, "Pitch:%.4f   ",Value_IMU_Mode[0]);
+				OLED_Printf(8, 32, OLED_8X16, "Roll:%.4f   ",Value_IMU_Mode[1]);
+				OLED_Printf(8, 48, OLED_8X16, "Yaw:%.4f   ",Value_IMU_Mode[2]);
+				OLED_Update();	
+	
 				break;
 			
 			default:
@@ -209,31 +239,41 @@ int main(void)
 		}
 		/* =================== [END] 功能响应及更新性质模块 [END] =================== */	
 		
-		
-		
-		
+		//看看心跳.exe
+		if (Heartbeat_TimeTick > 0)//活着
+		{
+			OLED_Printf(112, 0, OLED_8X16, "+");
+			OLED_Update();	
+		}
+		else//似了
+		{
+			OLED_Printf(112, 0, OLED_8X16, "-");
+			OLED_Update();	
+		}		
 	}
 }
 
-uint16_t Timetick = 0;
+uint16_t TimeTick = 0;
 //1ms的定时器定时中断
 void TIM1_UP_IRQHandler(void)
 {
 	//检查标志位
-	Timetick ++;
-	if (Timetick >= 50)
-	{
-		Timetick = 0;
-		if (ADC_READ_ENABLE){
-			AD_GetValue();
-			memcpy(Value_ADC_Mode, AD_Value, 6);
-		}
-	}
-	
 	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
 	{
+		
+		TimeTick ++;
+		Heartbeat_TimeTick --;
+		if (TimeTick >= 50)
+		{
+			TimeTick = 0;
+			if (ADC_READ_ENABLE){
+				AD_GetValue();
+				memcpy(Value_ADC_Mode, AD_Value, 6);
+			}
+		}
 		Key_Tick();
-		//清除标志位
+		
+		//清除标志位		
 		TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
 	}
 }
