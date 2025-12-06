@@ -1815,11 +1815,11 @@
       <ActiveTab>0</ActiveTab>
       <Doc>
         <Name>.\User\main.c</Name>
-        <ColumnNumber>59</ColumnNumber>
-        <TopLine>43</TopLine>
-        <CurrentLine>112</CurrentLine>
+        <ColumnNumber>8</ColumnNumber>
+        <TopLine>46</TopLine>
+        <CurrentLine>58</CurrentLine>
         <Folding>1</Folding>
-        <ContractedFolders>58,60,70,72</ContractedFolders>
+        <ContractedFolders>61,63,73,75,84,155,178</ContractedFolders>
         <PaneID>0</PaneID>
       </Doc>
     </MDIGroup>

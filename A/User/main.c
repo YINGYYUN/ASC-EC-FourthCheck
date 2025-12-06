@@ -7,6 +7,7 @@
 #include "Key.h"
 #include "AD.h"
 #include "W25Q64.h"
+#include "Serial.h"
 
 #include <string.h>
 #include <math.h>
@@ -27,6 +28,7 @@ int main(void)
 	Key_Init();
 	AD_Init();
 	W25Q64_Init();
+	Serial_Init();
 	
 	Timer_Init();
 	
@@ -53,6 +55,7 @@ int main(void)
 	
 	while (1)
 	{	
+		
 		/* =================== [START] 按键响应及菜单更新模块 [START] =================== */	
 		// 上键单击：菜单上移
 		if(Key_Check(KEY_NAME_UP, KEY_SINGLE))
@@ -202,8 +205,7 @@ int main(void)
 			
 			default:
 				
-				break;
-			
+				break;			
 		}
 		/* =================== [END] 功能响应及更新性质模块 [END] =================== */	
 		
