@@ -18,6 +18,17 @@ PB7                     SDA(SDA)
 PA10                    UP
 PA11                    DOWN
 PB5                     CONFIRM
+
+[传感器模块]
+PA0                     (POT电位器)
+PA1                     (NTC热敏电阻)A0
+PA2                     (LDR光敏电阻)A0
+
+[W25Q64存储模块]
+PB0                     SS
+PB1                     SCK
+PB10                    MISO
+PB11                    MOSI
 =================================================
 
 
@@ -26,3 +37,4 @@ PB5                     CONFIRM
 完成OLED模块
 完成按键模块
 完成菜单架构
+完成传感器和W25Q64
