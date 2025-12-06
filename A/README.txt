@@ -15,8 +15,8 @@ PB7                     SDA(SDA)
 
 [按键模块]
 (TIM1定时器定时扫描)
-PA10                    UP
-PA11                    DOWN
+PB8                    UP
+PB9                    DOWN
 PB5                     CONFIRM
 
 [传感器模块]

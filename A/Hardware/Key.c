@@ -25,12 +25,12 @@ void Key_Init(void)
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_8 | GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
-	GPIO_Init(GPIOA,&GPIO_InitStructure);
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+//	GPIO_Init(GPIOA,&GPIO_InitStructure);
 }
 
 //形参指定按键；返回当前按键按下状态/未按下状态
@@ -38,7 +38,7 @@ uint8_t Key_GetState(uint8_t n)
 {
 	if (n == KEY_NAME_UP)//0
 	{
-		if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_10) == 1)
+		if (GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_8) == 1)
 		{
 		return KEY_PRESSED;//返回按下
 		}
@@ -46,7 +46,7 @@ uint8_t Key_GetState(uint8_t n)
 	}
 	else if (n == KEY_NAME_DOWN)//1
 	{
-		if (GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_11) == 1)
+		if (GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_9) == 1)
 		{
 		return KEY_PRESSED;
 		}
