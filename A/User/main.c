@@ -23,6 +23,7 @@ uint8_t Byte_Buf_Write[6];
 uint8_t Byte_Buf_Read[6];
 
 int16_t Heartbeat_TimeTick = 200;
+int16_t Store_OK_Show_TimeTick = 0;
 
 int main(void)
 {
@@ -163,6 +164,7 @@ int main(void)
 			else
 			{	
 				ADC_READ_ENABLE = 0;
+				Store_OK_Show_TimeTick = 0;
 				FUNCTION_State = Flag_Mian_Menu;
 				
 				//显示更新
@@ -193,6 +195,8 @@ int main(void)
 				
 				W25Q64_SectorErase(0x000000);					// 擦除0号扇区（模板原有函数）
 				W25Q64_PageProgram(0x000000, Byte_Buf_Write, 6);	// 写入6字节（替换模板的4字节）
+				
+				Store_OK_Show_TimeTick = 2000;				
 			}		
 		}
 		/* =================== [END] 按键响应及菜单更新模块 [END] =================== */	
@@ -216,8 +220,21 @@ int main(void)
 				OLED_Printf(72, 16, OLED_8X16, "%d",Value_ADC_Mode[0]);
 				OLED_Printf(72, 32, OLED_8X16, "%d",Value_ADC_Mode[1]);
 				OLED_Printf(72, 48, OLED_8X16, "%d",Value_ADC_Mode[2]);
+				
+				if(Store_OK_Show_TimeTick >= 1500)
+				{
+					OLED_Printf(40, 0, OLED_8X16, " [] ");
+				}
+				else if(Store_OK_Show_TimeTick >= 1000)
+				{
+					OLED_Printf(40, 0, OLED_8X16, "[OK]");
+				}
+				else if(Store_OK_Show_TimeTick == 0)
+				{
+					OLED_Printf(40, 0, OLED_8X16, "    ");
+				}
 				OLED_Update();
-								
+				
 				break;
 			}
 			
@@ -260,9 +277,9 @@ void TIM1_UP_IRQHandler(void)
 	//检查标志位
 	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
 	{
-		
+		if (Store_OK_Show_TimeTick > 0)Store_OK_Show_TimeTick --; 
 		TimeTick ++;
-		Heartbeat_TimeTick --;
+		if (Heartbeat_TimeTick > -10)Heartbeat_TimeTick --;
 		if (TimeTick >= 50)
 		{
 			TimeTick = 0;

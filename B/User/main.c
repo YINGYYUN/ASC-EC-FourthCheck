@@ -9,19 +9,21 @@
 
 int16_t AX, AY, AZ, GX, GY, GZ;
 
-float RollAcc;    		// 加速度计计算的横滚角
-float RollGyro;   		// 陀螺仪积分的横滚角
-float Roll;       		// 融合后的横滚角
+float RollAcc = 0.0f;    		// 加速度计计算的横滚角
+float RollGyro = 0.0f;   		// 陀螺仪积分的横滚角
+float Roll = 0.0f;       		// 融合后的横滚角
 
-float Yaw = 0;			//偏航角
+float Yaw = 0.0f;				//偏航角
 
-float PitchAcc;			//加速度计算的俯仰角
-float PitchGyro;		//陀螺仪积分的俯仰角
-float Pitch;			//融合后的俯仰角	
+float PitchAcc = 0.0f;			//加速度计算的俯仰角
+float PitchGyro = 0.0f;		//陀螺仪积分的俯仰角
+float Pitch = 0.0f;			//融合后的俯仰角	
 
 float Roll_Sum, Yaw_Sum, Pitch_Sum;
 float Roll_Result, Yaw_Result, Pitch_Result;
 uint8_t Sum_Count = 0;
+
+uint16_t START_Delay_TimeTick = 1000;
 
 int main(void)
 {
@@ -44,8 +46,20 @@ void TIM1_UP_IRQHandler(void)
 {
 	//检查标志位
 	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
-	{
-		TimeTick ++;
+	{	
+		//清除标志位
+		TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
+		
+		//保证数据的及时读取
+		MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
+		
+		if (START_Delay_TimeTick > 0)
+		{
+			START_Delay_TimeTick --;
+			return ;
+		}
+		
+			TimeTick ++;
 		if (TimeTick == 50)
 		{
 			Serial_Printf("@D,%.4f,%.4f,%.4f\r\n", Pitch, Roll, Yaw);
@@ -55,13 +69,6 @@ void TIM1_UP_IRQHandler(void)
 			Serial_Printf("@H\r\n");		
 			TimeTick = 0;
 		}
-		//清除标志位
-		TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
-		
-		
-		//保证数据的及时读取
-		MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
-		
 		
 		//校准零飘
 		GX += 10;
@@ -70,7 +77,7 @@ void TIM1_UP_IRQHandler(void)
 	
 		if (-2 < GX && GX < 2)GX = 0;
 		if (-2 < GY && GY < 2)GY = 0;
-		
+		if (-2 < GZ && GZ < 2)GZ = 0;
 //		Serial_Printf("%d,%d,%d\r\n",GX,GY,GZ);
 		
 		// 横滚角计算
@@ -80,8 +87,8 @@ void TIM1_UP_IRQHandler(void)
 		Roll = 0.001 * RollAcc + (1 - 0.001) * RollGyro;  		// 相同互补滤波算法
 		
 		// 偏航角：仅陀螺仪积分（无加速度计校准，会漂移）
-		if (GZ <= -2 || 2 <= GZ){Yaw += GZ / 32768.0 * 2600 * 0.001;}
-//		if (GZ <= -2 || 2 <= GZ){Yaw += GZ / 32768.0 * 2000 * 0.001;}
+		Yaw += GZ / 32768.0 * 2600 * 0.001;
+//		Yaw += GZ / 32768.0 * 2000 * 0.001;
 
 		// 俯仰角计算
 		PitchAcc = -atan2(AX, AZ) / 3.14159 * 180;  			// 俯仰角（绕Y轴）
