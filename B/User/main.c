@@ -75,15 +75,18 @@ void TIM1_UP_IRQHandler(void)
 		
 		// 横滚角计算
 		RollAcc = atan2(AY, AZ) / 3.14159 * 180;  				// 横滚角（绕X轴）
-		RollGyro = Roll + GX / 32768.0 * 2000 * 0.001;  		// 陀螺仪X轴积分
+		RollGyro = Roll + GX / 32768.0 * 2600 * 0.001;
+//		RollGyro = Roll + GX / 32768.0 * 2000 * 0.001;  		// 陀螺仪X轴积分
 		Roll = 0.001 * RollAcc + (1 - 0.001) * RollGyro;  		// 相同互补滤波算法
 		
 		// 偏航角：仅陀螺仪积分（无加速度计校准，会漂移）
-		if (GZ <= -2 || 2 <= GZ){Yaw += GZ / 32768.0 * 2000 * 0.001;}
+		if (GZ <= -2 || 2 <= GZ){Yaw += GZ / 32768.0 * 2600 * 0.001;}
+//		if (GZ <= -2 || 2 <= GZ){Yaw += GZ / 32768.0 * 2000 * 0.001;}
 
 		// 俯仰角计算
 		PitchAcc = -atan2(AX, AZ) / 3.14159 * 180;  			// 俯仰角（绕Y轴）
-		PitchGyro = Pitch + GY / 32768.0 * 2000 * 0.001;  		// 陀螺仪积分（2000是量程，0.001是1ms采样间隔）
+		PitchGyro = Pitch + GY / 32768.0 * 2600 * 0.001;
+//		PitchGyro = Pitch + GY / 32768.0 * 2000 * 0.001;  		// 陀螺仪积分（2000是量程，0.001是1ms采样间隔）
 		Pitch = 0.001 * PitchAcc + (1 - 0.001) * PitchGyro;  	// 互补滤波
 
 	}
