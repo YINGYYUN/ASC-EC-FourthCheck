@@ -670,6 +670,16 @@
               <FileType>5</FileType>
               <FilePath>.\System\Timer.h</FilePath>
             </File>
+            <File>
+              <FileName>power_on_reset.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\power_on_reset.c</FilePath>
+            </File>
+            <File>
+              <FileName>power_on_reset.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\power_on_reset.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
