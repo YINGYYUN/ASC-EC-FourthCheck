@@ -27,7 +27,6 @@
 ".\objects\stm32f10x_wwdg.o"
 ".\objects\delay.o"
 ".\objects\timer.o"
-".\objects\power_on_reset.o"
 ".\objects\serial.o"
 ".\objects\mpu6050.o"
 ".\objects\myi2c.o"

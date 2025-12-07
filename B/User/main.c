@@ -23,24 +23,6 @@ float Roll_Sum, Yaw_Sum, Pitch_Sum;
 float Roll_Result, Yaw_Result, Pitch_Result;
 uint8_t Sum_Count = 0;
 
-uint16_t START_Delay_TimeTick = 1000;
-
-/* 启动即用的固定零飘修正（保持原先RESET后的稳定效果） */
-static int32_t GyroBiasX = 10;
-static int32_t GyroBiasY = -8;
-static int32_t GyroBiasZ = 38;
-
-/* 静止时缓慢跟随的微调，避免上电初期温漂导致的大漂移 */
-static void GyroBias_Update(void)
-{
-	if ((GX > -30 && GX < 30) && (GY > -30 && GY < 30) && (GZ > -30 && GZ < 30))
-	{
-		GyroBiasX += (GX - GyroBiasX) / 64;
-		GyroBiasY += (GY - GyroBiasY) / 64;
-		GyroBiasZ += (GZ - GyroBiasZ) / 64;
-	}
-}
-
 int main(void)
 {
 	    // 上电复位逻辑
@@ -49,7 +31,7 @@ int main(void)
     
     if(BKP_ReadBackupRegister(BKP_DR1) != 0x5A5A) {
         BKP_WriteBackupRegister(BKP_DR1, 0x5A5A);
-        Delay_ms(1000);
+        Delay_ms(200);
         NVIC_SystemReset();
     } else {
         BKP_WriteBackupRegister(BKP_DR1, 0x0000);
@@ -80,12 +62,6 @@ void TIM1_UP_IRQHandler(void)
 		
 		//保证数据的及时读取
 		MPU6050_GetData(&AX, &AY, &AZ, &GX, &GY, &GZ);
-		
-		if (START_Delay_TimeTick > 0)
-		{
-			START_Delay_TimeTick --;
-			return ;
-		}
 		
 			TimeTick ++;
 		if (TimeTick == 50)
