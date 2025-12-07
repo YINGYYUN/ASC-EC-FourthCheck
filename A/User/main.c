@@ -35,6 +35,9 @@ int main(void)
 	
 	Timer_Init();
 	
+	
+	
+	
 /* =================== [START] 菜单初始化模块 [START] =================== */	
 	char Main_Menu[][10] = {"ADC", "Store", "IMU"};
 
@@ -55,8 +58,16 @@ int main(void)
 	OLED_Update();	
 /* =================== [END] 菜单初始化模块 [END] =================== */	
 	
+	
+	
+	
 	while (1)
 	{	
+		
+		
+		
+		
+		/* =================== [START] 蓝牙模块 [START] =================== */	
 		if (Serial_RxFlag == 1)
         {
             // 判断是否是@H\r\n（解析后为"H"）
@@ -64,6 +75,7 @@ int main(void)
             {
 				Heartbeat_TimeTick = 200;
             }
+			// 判断是否是@Dxxxxxxx\r\n
 			else if (strstr(Serial_RxPacket, "D,") != NULL)
 			{
 				char *token = strtok(Serial_RxPacket, ","); // 按逗号分割
@@ -82,6 +94,10 @@ int main(void)
 		}	
             Serial_RxFlag = 0; // 清空标志位
         }
+		/* =================== [END] 蓝牙模块 [END] =================== */	
+		
+		
+		
 		
 		/* =================== [START] 按键响应及菜单更新模块 [START] =================== */	
 		// 上键单击：菜单上移
@@ -108,6 +124,7 @@ int main(void)
 			}
 		}
 		
+		//确认键短按：进入/退出子菜单
 		else if(Key_Check(KEY_NAME_CONFIRM, KEY_SINGLE))
 		{
 			if (FUNCTION_State == Flag_Mian_Menu)
@@ -156,7 +173,7 @@ int main(void)
 						break;		
 
 					default:
-						
+						//留一手
 						break;
 				}
 				
@@ -179,7 +196,7 @@ int main(void)
 			
 		}	
 		
-		// 确认键长按：保存数据（复用模板的KEY_LONG标志位）
+		// 确认键长按：保存数据
 		else if(Key_Check(KEY_NAME_CONFIRM, KEY_LONG))
 		{
 			if(FUNCTION_State == Flag_ADC_Mode)
@@ -256,6 +273,9 @@ int main(void)
 		}
 		/* =================== [END] 功能响应及更新性质模块 [END] =================== */	
 		
+		
+		
+		
 		//看看心跳.exe
 		if (Heartbeat_TimeTick > 0)//活着
 		{
@@ -277,12 +297,17 @@ void TIM1_UP_IRQHandler(void)
 	//检查标志位
 	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
 	{
+		//保存成功动画计时
 		if (Store_OK_Show_TimeTick > 0)Store_OK_Show_TimeTick --; 
+		//进程计时（等效分频）
 		TimeTick ++;
+		//心跳计时
 		if (Heartbeat_TimeTick > -10)Heartbeat_TimeTick --;
+		
 		if (TimeTick >= 50)
 		{
 			TimeTick = 0;
+			//ADC
 			if (ADC_READ_ENABLE){
 				AD_GetValue();
 				memcpy(Value_ADC_Mode, AD_Value, 6);
