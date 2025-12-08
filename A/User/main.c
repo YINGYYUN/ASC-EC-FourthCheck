@@ -298,11 +298,11 @@ void TIM1_UP_IRQHandler(void)
 	if (TIM_GetITStatus(TIM1,TIM_IT_Update) == SET )
 	{
 		//保存成功动画计时
-		if (Store_OK_Show_TimeTick > 0)Store_OK_Show_TimeTick --; 
+		if (Store_OK_Show_TimeTick != 0)Store_OK_Show_TimeTick --; 
 		//进程计时（等效分频）
 		TimeTick ++;
 		//心跳计时
-		if (Heartbeat_TimeTick > -10)Heartbeat_TimeTick --;
+		if (Heartbeat_TimeTick != 0)Heartbeat_TimeTick --;
 		
 		if (TimeTick >= 50)
 		{
