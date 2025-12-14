@@ -77,6 +77,7 @@ void TIM1_UP_IRQHandler(void)
 		if (TimeTick == 50)
 		{
 			Serial_Printf("@D,%.4f,%.4f,%.4f\r\n", Pitch_Result, Roll_Result, Yaw_Result);
+//			Serial_Printf("%.4f,%.4f,%.4f\r\n", Pitch_Result, Roll_Result, Yaw_Result);
 			
 		}
 		if (TimeTick >= 110)
@@ -90,9 +91,16 @@ void TIM1_UP_IRQHandler(void)
 //		GY -= 8;
 //		GZ += 38;
 		
-		GX += 55;
-		GY += 20;
-		GZ += 9;
+		 if (AX < -32767 || AX > 32767 || AY < -32767 || AY > 32767 || AZ < -32767 || AZ > 32767 ||
+            GX < -32767 || GX > 32767 || GY < -32767 || GY > 32767 || GZ < -32767 || GZ > 32767)
+        {
+            // 数据溢出，跳过本次解算，避免崩溃
+            return;
+        }
+		
+		GX += 56;
+		GY += 19;
+		GZ += 10;
 	
 		//进一步修正零飘
 		if (-1 < GX && GX < 2)GX = 0;
@@ -104,22 +112,22 @@ void TIM1_UP_IRQHandler(void)
 		RollAcc = atan2(AY, AZ) / 3.14159 * 180;  				// 横滚角（绕X轴）
 		RollGyro = Roll + GX / 32768.0 * 2020 * 0.001;
 //		RollGyro = Roll + GX / 32768.0 * 2000 * 0.001;  		// 陀螺仪X轴积分
-		Roll = 0.001 * RollAcc + (1 - 0.001) * RollGyro;  		// 相同互补滤波算法
+		Roll = 0.01 * RollAcc + (1 - 0.01) * RollGyro;  		// 相同互补滤波算法
 		
 		// 偏航角：仅陀螺仪积分（无加速度计校准，会漂移）
-		Yaw += GZ / 32768.0 * 2550 * 0.001;
+		Yaw += GZ / 32768.0 * 2600 * 0.001;
 //		Yaw += GZ / 32768.0 * 2000 * 0.001;
 
 		// 俯仰角计算
 		PitchAcc = -atan2(AX, AZ) / 3.14159 * 180;  			// 俯仰角（绕Y轴）
 		PitchGyro = Pitch + GY / 32768.0 * 2020 * 0.001;
 //		PitchGyro = Pitch + GY / 32768.0 * 2000 * 0.001;  		// 陀螺仪积分（2000是量程，0.001是1ms采样间隔）
-		Pitch = 0.001 * PitchAcc + (1 - 0.001) * PitchGyro;  	// 互补滤波
+		Pitch = 0.01 * PitchAcc + (1 - 0.01) * PitchGyro;  	// 互补滤波
 		
 		//输出进一步处理
-		if (fabs(Roll_Result - Roll) > 0.07)Roll_Result = Roll;
-		if (fabs(Yaw_Result - Yaw) > 0.07)Yaw_Result = Yaw;
-		if (fabs(Pitch_Result - Pitch) > 0.07)Pitch_Result = Pitch;	
+		if (fabs(Roll_Result - Roll) > 0.08)Roll_Result = Roll;
+		if (fabs(Yaw_Result - Yaw) > 0.08)Yaw_Result = Yaw;
+		if (fabs(Pitch_Result - Pitch) > 0.08)Pitch_Result = Pitch;	
 		/* =================== [END] MPU6050姿态解算模块 [END] =================== */	
 		
 		
